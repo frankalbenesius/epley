@@ -17,7 +17,7 @@
         <span class="eyebrow">Epley maneuver</span>
         <h1>A guided walk-through for vertigo.</h1>
       </div>
-      <p class="lede">This walks you through the Epley maneuver step by step and uses your phone's motion sensors to sense when you've reached each position — so you can keep your eyes closed and just listen.</p>
+      <p class="lede">This talks you through the Epley maneuver step by step and uses your phone's motion sensors to sense when you've reached each position — so you can keep your eyes closed and just listen.</p>
       <div class="note warn">
         <b>Before you start.</b> This is for people whose doctor has already diagnosed BPPV and told them which ear is affected. It is not a diagnosis or a substitute for medical care.
         <ul>
@@ -34,39 +34,70 @@
     <!-- EAR SELECT -->
     <section class="screen" id="s-ear">
       <div>
-        <span class="eyebrow">Step 1 of 2 · setup</span>
+        <span class="eyebrow">Setup · 1 of 3</span>
         <h1>Which ear causes the most vertigo?</h1>
       </div>
-      <p class="lede">This is the side your doctor identified. It sets the direction you'll turn.</p>
+      <p class="lede">This is the side your doctor identified. It sets which way you'll turn.</p>
       <div class="choice-grid">
         <button class="choice" data-ear="left">Left ear<small>spinning is worse on the left</small></button>
         <button class="choice" data-ear="right">Right ear<small>spinning is worse on the right</small></button>
       </div>
       <div class="spacer"></div>
-      <button class="btn btn-primary" id="go-permission" disabled>Continue</button>
+      <button class="btn btn-primary" id="go-overview" disabled>Continue</button>
       <button class="btn btn-ghost" id="back-welcome">Back</button>
     </section>
 
-    <!-- PERMISSION / PLACEMENT -->
-    <section class="screen" id="s-permission">
+    <!-- OVERVIEW / THE PLAN -->
+    <section class="screen" id="s-overview">
       <div>
-        <span class="eyebrow">Step 2 of 2 · setup</span>
-        <h1>Hold the phone to your head.</h1>
+        <span class="eyebrow">Setup · 2 of 3</span>
+        <h1>The plan: three moves.</h1>
       </div>
-      <p class="lede">Hold your phone <b>flat against your <span id="perm-side">affected</span> ear</b> — the side of your head over the ear, screen facing outward. Not your forehead. Keep it there for the whole maneuver; a headband or a firm hand both work.</p>
-      <p class="lede">That's the ear being treated, and it stays facing up when you roll — so the phone won't get squashed.</p>
-      <p class="lede">We'll ask permission to read the motion sensors.</p>
-      <div class="pill" id="perm-status"><span class="pill-dot"></span><span id="perm-text">Not started</span></div>
+      <p class="lede">About two minutes. You'll roll your head through a set sequence to guide the loose crystals in your ear back where they belong. It really is mostly rolling until you're facing the floor.</p>
+      <ol class="plan">
+        <li><span class="pn">1</span><div><b>Lie back</b><small>head stays turned to the side</small></div></li>
+        <li><span class="pn">2</span><div><b>Turn your head</b><small>the other way, part-way toward the floor</small></div></li>
+        <li><span class="pn">3</span><div><b>Roll onto your side</b><small>until you're looking down at the floor</small></div></li>
+      </ol>
+      <p class="lede">Then you sit up. Each position is held for 30 seconds. <b>I'll speak every move and beep when it's time</b> — once the phone's at your head, you won't touch it again.</p>
       <div class="spacer"></div>
-      <button class="btn btn-primary" id="go-run">Allow motion &amp; begin</button>
+      <button class="btn btn-primary" id="go-audio">Continue</button>
       <button class="btn btn-ghost" id="back-ear">Back</button>
     </section>
 
-    <!-- RUNNING -->
+    <!-- AUDIO CHECK -->
+    <section class="screen" id="s-audio">
+      <div>
+        <span class="eyebrow">Setup · 3 of 3</span>
+        <h1>Turn your sound up.</h1>
+      </div>
+      <p class="lede">The guide talks you through every move so you can close your eyes. It only works if you can hear it — <b>turn your phone's volume up</b>, take it off silent, then test it.</p>
+      <div class="spacer"></div>
+      <button class="btn btn-primary" id="test-sound">Test the sound</button>
+      <div class="pill" id="audio-status"><span class="pill-dot"></span><span id="audio-text">Tap to hear a beep and a voice</span></div>
+      <button class="btn btn-primary" id="go-place" disabled>Continue</button>
+      <button class="btn btn-ghost" id="back-overview">Back</button>
+    </section>
+
+    <!-- PLACEMENT / BEGIN -->
+    <section class="screen" id="s-place">
+      <div>
+        <span class="eyebrow">Ready</span>
+        <h1>Phone to your ear.</h1>
+      </div>
+      <p class="lede">Sit on the edge of the bed. Hold your phone <b>flat against your <span id="perm-side">affected</span> ear</b> — the side of your head over the ear, screen facing out. Not your forehead. Keep it there the whole time; a headband or a firm hand both work.</p>
+      <p class="lede">Tap <b>Begin</b>, bring the phone to your ear, and hold still — I'll take it from there.</p>
+      <div class="pill" id="perm-status"><span class="pill-dot"></span><span id="perm-text">Motion sensors not started</span></div>
+      <div class="spacer"></div>
+      <button class="btn btn-primary" id="go-run">Begin</button>
+      <button class="btn btn-ghost" id="back-audio">Back</button>
+    </section>
+
+    <!-- RUNNING (hands-free) -->
     <section class="screen" id="s-run">
       <div class="step-head">
-        <span class="eyebrow" id="run-phase">Position</span>
-        <span class="step-count" id="run-count">1 / 5</span>
+        <span class="eyebrow" id="run-move">Get ready</span>
+        <span class="step-count" id="run-count"></span>
       </div>
       <h2 id="run-title">Get ready</h2>
 
@@ -84,7 +115,7 @@
         </div>
       </div>
 
-      <div class="pill wait" id="run-status"><span class="pill-dot"></span><span id="run-status-text">Move into position…</span></div>
+      <div class="pill wait" id="run-status"><span class="pill-dot"></span><span id="run-status-text">Listening…</span></div>
 
       <div class="level-mini">
         <canvas id="run-level" width="112" height="112"></canvas>
@@ -92,10 +123,9 @@
       </div>
 
       <div class="spacer"></div>
-      <button class="btn btn-primary" id="run-next">I'm in position</button>
-      <div class="btn-row">
-        <button class="btn btn-ghost" id="run-back">Back</button>
-        <button class="btn btn-ghost" id="run-quit">Quit</button>
+      <div class="run-controls">
+        <button class="linkbtn" id="run-restart">Start over</button>
+        <button class="linkbtn" id="run-quit">Stop</button>
       </div>
     </section>
 
