@@ -18,8 +18,8 @@ function buildSteps(affected) {
       id: 'setup',
       phase: 'Position',
       title: 'Get ready',
-      instructionHtml: `Sit on the edge of the bed. Turn your head <span class="dir">45° toward your ${A} side</span> — the ear with the most vertigo. Hold the phone flat against that side of your head.`,
-      speech: `Sit on the edge of the bed. Turn your head 45 degrees toward your ${affected} side. Hold the phone against that side of your head. Tap when you are ready.`,
+      instructionHtml: `Sit on the edge of the bed. Turn your head <span class="dir">45° toward your ${A} side</span> — the ear with the most vertigo. Hold the phone flat against your <span class="dir">${A} ear</span>, screen facing out.`,
+      speech: `Sit on the edge of the bed. Turn your head 45 degrees toward your ${affected} side. Hold the phone flat against your ${affected} ear, on the side of your head. Tap when you are ready.`,
       manual: true,
       posture: 'sitting',
     },
@@ -366,7 +366,10 @@ document.querySelectorAll('.choice').forEach((c) => {
     $('go-permission').disabled = false
   }
 })
-$('go-permission').onclick = () => show('s-permission')
+$('go-permission').onclick = () => {
+  if (state.affected) $('perm-side').textContent = state.affected
+  show('s-permission')
+}
 
 $('go-run').onclick = () => {
   const status = $('perm-status'); const text = $('perm-text')
