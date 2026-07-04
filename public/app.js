@@ -28,26 +28,26 @@ function buildSteps(affected) {
     {
       id: 'lie-back', hold: HOLD_LONG, posture: 'lie-back',
       title: 'Lie back',
-      instructionHtml: `Keeping your head turned <span class="dir">45° toward your ${A} side</span>, lie back quickly so your head hangs slightly off the edge. Then hold still.`,
-      speech: `Lie back quickly, keeping your head turned toward your ${affected} side, so your head hangs slightly off the edge.`,
+      instructionHtml: `Keeping your head turned <span class="dir">45° toward your ${A} side</span>, lie back quickly so your head hangs slightly off the edge. Then hold still — <b>30 seconds</b>.`,
+      speech: `Lie back quickly now, keeping your head turned toward your ${affected} side, so your head hangs a little off the edge of the bed. Hold this for 30 seconds.`,
     },
     {
       id: 'turn-head', hold: HOLD_LONG, posture: 'turn-head',
       title: 'Turn your head',
-      instructionHtml: `Slowly turn your head <span class="dir">toward your ${O} side</span>, about 90°, until you're looking part-way toward the floor. Keep it there.`,
-      speech: `Slowly turn your head about 90 degrees toward your ${other} side, until you are looking part way toward the floor.`,
+      instructionHtml: `Turn <span class="dir">just your head</span> about 90° toward your <span class="dir">${O} side</span> — keep your body flat — until you're looking part-way toward the floor. Hold <b>30 seconds</b>.`,
+      speech: `Now turn just your head, about 90 degrees toward your ${other} side. Keep your body flat on the bed, and turn until you are looking part way toward the floor. Hold for 30 seconds.`,
     },
     {
       id: 'roll', hold: HOLD_LONG, posture: 'roll',
       title: 'Roll onto your side',
-      instructionHtml: `Roll onto your <span class="dir">${O} side</span> and turn to look down at the floor. Keep still.`,
-      speech: `Now roll onto your ${other} side, and turn to look down at the floor. Keep still.`,
+      instructionHtml: `Now roll your <span class="dir">whole body</span> onto your <span class="dir">${O} side</span>, until you're facing down toward the floor. Hold <b>30 seconds</b>.`,
+      speech: `Now roll your whole body onto your ${other} side, not just your head, so you end up facing down toward the floor. Hold for 30 seconds.`,
     },
     {
       id: 'sit-up', hold: HOLD_SETTLE, posture: 'sitting',
       title: 'Sit up slowly',
-      instructionHtml: `Slowly return to sitting on the edge of the bed. Stay sitting and let it settle before you stand.`,
-      speech: `Slowly sit up, back to the edge of the bed. Stay sitting while it settles.`,
+      instructionHtml: `Slowly sit up and return to the edge of the bed. Stay sitting and let it settle before you stand.`,
+      speech: `Great. Now sit up slowly, back to the edge of the bed, and stay sitting while it settles.`,
     },
   ]
 }
@@ -138,12 +138,14 @@ const sndWaitPulse = () => tone(300, 45, 0.05) // gentle "still listening"
 const sndDone = () => { tone(659, 140, 0.2); tone(784, 140, 0.2, 0.14); tone(988, 160, 0.22, 0.28); tone(1319, 320, 0.22, 0.44) }
 function vibrate(p) { if (navigator.vibrate) navigator.vibrate(p) }
 function say(text) {
+  if (!('speechSynthesis' in window)) return
   try {
-    if (!('speechSynthesis' in window)) return
     speechSynthesis.cancel()
     const u = new SpeechSynthesisUtterance(text)
     u.rate = 0.98
     speechSynthesis.speak(u)
+    // Some mobile browsers wedge the queue after cancel(); nudge it.
+    setTimeout(() => { try { if (speechSynthesis.paused) speechSynthesis.resume() } catch (_) {} }, 220)
   } catch (_) {}
 }
 
@@ -233,8 +235,7 @@ function arm() {
   clearInterval(engineTick); engineTick = null
   state.reference = gravity || { x: 0, y: 1, z: 0 }
   sndReached(); vibrate(40)
-  say('Starting now.')
-  setTimeout(() => enterStep(1), 700)
+  setTimeout(() => enterStep(1), 900) // the chord signals start; move 1's instruction is spoken on enter
 }
 
 function watchWaiting() {
@@ -262,7 +263,7 @@ function beginHold() {
   state.phase = 'holding'
   const step = state.steps[state.index]
   sndReached(); vibrate(60)
-  say(`Good. Hold for ${step.hold} seconds.`)
+  say('Good. Hold still.')
   setStatus('hold', 'Hold still…')
   startHold(step.hold, finishHold)
 }
@@ -274,9 +275,9 @@ function finishHold() {
   sndComplete(); vibrate([80, 60, 80])
   if (gravity) state.reference = gravity
   const next = state.index + 1
-  if (next >= state.steps.length) { setTimeout(finishRun, 500); return }
-  say('Done. Onto the next.')
-  setTimeout(() => enterStep(next), 1100)
+  if (next >= state.steps.length) { setTimeout(finishRun, 700); return }
+  // completion chord is the "done" cue; the next move is spoken clearly on enter
+  setTimeout(() => enterStep(next), 1500)
 }
 
 function startRun() {
@@ -288,6 +289,13 @@ function startRun() {
     if (!state.haveMotion) { state.sensorMode = false; $('run-level-text').textContent = 'No sensor — timed guidance' }
   }, 2500)
   enterStep(0)
+}
+function runBack() {
+  if (state.index <= 0) { clearInterval(engineTick); engineTick = null; stopHold(); show('s-place'); return }
+  const prev = state.index - 1
+  // going back to a move: wait for a fresh move from wherever they are now
+  state.reference = state.steps[prev].arming ? null : gravity
+  enterStep(prev)
 }
 function finishRun() { clearInterval(engineTick); engineTick = null; stopHold(); sndDone(); say('All done. Sit up slowly.'); show('s-done') }
 function quitRun() { clearInterval(engineTick); engineTick = null; stopHold(); try { speechSynthesis.cancel() } catch (_) {}; show('s-welcome') }
@@ -335,6 +343,7 @@ $('go-run').onclick = () => {
   })
 }
 
+$('run-back').onclick = runBack
 $('run-restart').onclick = () => startRun()
 $('run-quit').onclick = quitRun
 $('done-restart').onclick = () => startRun()
