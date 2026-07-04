@@ -137,15 +137,31 @@ const sndComplete = () => { tone(784, 130, 0.2); tone(988, 150, 0.22, 0.13); ton
 const sndWaitPulse = () => tone(300, 45, 0.05) // gentle "still listening"
 const sndDone = () => { tone(659, 140, 0.2); tone(784, 140, 0.2, 0.14); tone(988, 160, 0.22, 0.28); tone(1319, 320, 0.22, 0.44) }
 function vibrate(p) { if (navigator.vibrate) navigator.vibrate(p) }
+let _utterKeep = [] // hold references so utterances aren't garbage-collected mid-speech
+function speakNow(text) {
+  const u = new SpeechSynthesisUtterance(text)
+  u.rate = 0.98
+  _utterKeep.push(u)
+  u.onend = u.onerror = () => { _utterKeep = _utterKeep.filter((x) => x !== u) }
+  speechSynthesis.speak(u)
+}
+// Mobile Chrome/Safari let the TTS engine sleep during silence (e.g. a 30s hold) and
+// then silently drop the next speak(). Cancel + resume, speak after a beat, and retry
+// once if nothing actually started.
 function say(text) {
   if (!('speechSynthesis' in window)) return
   try {
     speechSynthesis.cancel()
-    const u = new SpeechSynthesisUtterance(text)
-    u.rate = 0.98
-    speechSynthesis.speak(u)
-    // Some mobile browsers wedge the queue after cancel(); nudge it.
-    setTimeout(() => { try { if (speechSynthesis.paused) speechSynthesis.resume() } catch (_) {} }, 220)
+    speechSynthesis.resume()
+    setTimeout(() => { try { speakNow(text) } catch (_) {} }, 140)
+    setTimeout(() => {
+      try {
+        if (!speechSynthesis.speaking && !speechSynthesis.pending) {
+          speechSynthesis.resume()
+          speakNow(text)
+        }
+      } catch (_) {}
+    }, 850)
   } catch (_) {}
 }
 
@@ -263,7 +279,7 @@ function beginHold() {
   state.phase = 'holding'
   const step = state.steps[state.index]
   sndReached(); vibrate(60)
-  say('Good. Hold still.')
+  say(step.id === 'sit-up' ? 'Good. Stay sitting while it settles.' : `Good. Now hold this position for ${step.hold} seconds.`)
   setStatus('hold', 'Hold still…')
   startHold(step.hold, finishHold)
 }
